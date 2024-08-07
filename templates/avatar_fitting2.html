@@ -60,7 +60,7 @@
             padding: 10px 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        #viewDetailsButton {
+        #backButton {
             position: absolute;
             bottom: 20px;
             padding: 10px 20px;
@@ -76,7 +76,7 @@
 <body>
     <h1>Fitting Room</h1>
     <div id="container"></div>
-    <button id="viewDetailsButton">핏 자세히 보기</button>
+    <button id="backButton">돌아가기</button>
     <script>
         const modelFilenames = [
             '/static/fitting_models/{{ model_filename.replace("_S", "_S") }}',
@@ -87,7 +87,6 @@
         ];
 
         const sizeLabels = ["S_size", "M_size", "L_size", "XL_size", "XXL_size"];
-        const blackObjects = ['21', '29', '60', '61', 'Pattern2D_3805002', 'Pattern2D_3805017', 'Pattern2D_3805018'];
 
         modelFilenames.forEach((modelPath, index) => {
             const container = document.createElement('div');
@@ -136,15 +135,6 @@
             loader.load(modelPath, function (gltf) {
                 const model = gltf.scene;
 
-                // Set specified objects' material to black
-                model.traverse(function (node) {
-                    if (node.isMesh && blackObjects.includes(node.name)) {
-                        node.material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Set new black material
-                        node.castShadow = false; // Disable shadows for the mesh
-                        node.receiveShadow = false; // Ensure mesh doesn't receive shadows
-                    }
-                });
-
                 model.position.set(0, -1, 0); // Adjust the position if necessary
                 model.scale.set(1, 1, 1); // Adjust scale if necessary
                 scene.add(model);
@@ -171,10 +161,10 @@
             });
         });
 
-        // Add event listener to the button to navigate to avatar_fitting2.html
-        document.getElementById('viewDetailsButton').addEventListener('click', () => {
+        // Add event listener to the button to navigate to avatar_fitting.html
+        document.getElementById('backButton').addEventListener('click', () => {
             const modelFilename = '{{ model_filename }}';
-            window.location.href = `{{ url_for('avatar_fitting2') }}?model_filename=${modelFilename}`;
+            window.location.href = `{{ url_for('fitting_avatar') }}?model_filename=${modelFilename}`;
         });
     </script>
 </body>

@@ -1,29 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
-
-def get_model_filename(height, weight):
-    if 150 <= height < 160:
-        height = 155
-    elif 160 <= height < 170:
-        height = 165
-    elif 170 <= height <= 180:
-        height = 175
-    else:
-        return None
-
-    if 40 <= weight < 50:
-        weight = 45
-    elif 50 <= weight < 60:
-        weight = 55
-    elif 60 <= weight < 70:
-        weight = 65
-    elif 70 <= weight <= 80:
-        weight = 75
-    else:
-        return None
-
-    return f"{height}_{weight}_S.glb"
 
 @app.route('/')
 def avatar_selection():
@@ -33,16 +10,25 @@ def avatar_selection():
 def customize_avatar():
     height = int(request.form['height'])
     weight = int(request.form['weight'])
-    model_filename = get_model_filename(height, weight)
-    if model_filename:
-        return render_template('avatar_customize.html', model_filename=model_filename)
-    else:
-        return "Invalid height or weight", 400
+    model_filename = get_model_filename(height, weight)  # 모델 파일 이름 결정하는 함수
 
-@app.route('/fitting_avatar', methods=['POST'])
+    return render_template('avatar_customize.html', model_filename=model_filename)
+
+@app.route('/fitting_avatar', methods=['POST', 'GET'])
 def fitting_avatar():
-    model_filename = request.form['model_filename']
+    model_filename = request.args.get('model_filename') if request.method == 'GET' else request.form['model_filename']
     return render_template('avatar_fitting.html', model_filename=model_filename)
+
+@app.route('/avatar_fitting2', methods=['GET'])
+def avatar_fitting2():
+    model_filename = request.args.get('model_filename')
+    return render_template('avatar_fitting2.html', model_filename=model_filename)
+
+def get_model_filename(height, weight):
+    # 키와 몸무게를 바탕으로 모델 파일 이름을 결정하는 로직
+    height_category = '155' if 150 <= height < 160 else '165' if 160 <= height < 170 else '175'
+    weight_category = '45' if 40 <= weight < 50 else '55' if 50 <= weight < 60 else '65'
+    return f"{height_category}_{weight_category}_S.glb"
 
 if __name__ == '__main__':
     app.run(debug=True)
