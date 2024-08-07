@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customize Your Avatar</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Changed from center to flex-start */
+            height: 100vh;
+            overflow-y: auto; /* Allow vertical scrolling */
+            position: relative;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto; /* Added margin to create space around container */
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        #modelContainer {
+            width: 800px;
+            height: 600px;
+            background-color: #d3d3d3;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        h1 {
+            width: 100%;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Customize Your Avatar</h1>
+        <div id="modelContainer"></div>
+        <form action="{{ url_for('fitting_avatar') }}" method="post" class="mt-4">
+            <input type="hidden" name="model_filename" value="{{ model_filename }}">
+            <input type="submit" value="Try Fitting" class="btn btn-primary">
+        </form>
+    </div>
+    <script>
+        const modelPath = '/static/fitting_models/{{ model_filename }}';
+
+        // Initialize scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, 800 / 600, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(800, 600);
+        renderer.setClearColor(0xd3d3d3, 1); // Set background color to light gray
+        renderer.shadowMap.enabled = false; // Disable shadows
+        document.getElementById('modelContainer').appendChild(renderer.domElement);
+
+        // OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // Add lights
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 1, 1).normalize();
+        directionalLight.castShadow = false; // Disable shadows for the light
+        scene.add(directionalLight);
+
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+        ambientLight.castShadow = false; // Ensure ambient light doesn't cast shadows
+        scene.add(ambientLight);
+
+        // Load model
+        const loader = new THREE.GLTFLoader();
+        loader.load(modelPath, function (gltf) {
+            const model = gltf.scene;
+
+            // Disable shadows for all model meshes
+            model.traverse(function (node) {
+                if (node.isMesh) {
+                    node.castShadow = false; // Disable shadows for the mesh
+                    node.receiveShadow = false; // Ensure mesh doesn't receive shadows
+                }
+            });
+
+            model.position.set(0, -0.5, 0); // Adjust model position to center it vertically
+            model.scale.set(1, 1, 1); // Adjust scale if necessary
+            scene.add(model);
+            animate(); // Start the animation loop
+        }, undefined, function (error) {
+            console.error('An error occurred loading the model:', error);
+        });
+
+        camera.position.set(0, 1.5, 2.5); // Adjust camera position to be higher and closer to the model
+        camera.lookAt(0, 0, 0); // Ensure the camera is looking at the model's center
+        controls.update();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = 800 / 600;
+            camera.updateProjectionMatrix();
+            renderer.setSize(800, 600);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avatar Fitting</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .modelContainer {
+            width: 18%;
+            height: 40%;
+            background-color: #fff;
+            margin: 0.5%;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+        }
+        .sizeLabel {
+            width: 100%;
+            text-align: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #fff;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            padding: 5px 0;
+            margin-top: 10px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            width: 100%;
+            text-align: center;
+            position: absolute;
+            top: 10px;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            z-index: 1;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 10px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Avatar Fitting</h1>
+    <div id="container"></div>
+    <script>
+        const modelFilenames = [
+            '/static/fitting_models/{{ model_filename.replace("_S", "_S") }}',
+            '/static/fitting_models/{{ model_filename.replace("_S", "_M") }}',
+            '/static/fitting_models/{{ model_filename.replace("_S", "_L") }}',
+            '/static/fitting_models/{{ model_filename.replace("_S", "_XL") }}',
+            '/static/fitting_models/{{ model_filename.replace("_S", "_XXL") }}'
+        ];
+
+        const sizeLabels = ["S_size", "M_size", "L_size", "XL_size", "XXL_size"];
+
+        modelFilenames.forEach((modelPath, index) => {
+            const container = document.createElement('div');
+            container.className = 'modelContainer';
+            container.id = `modelContainer${index}`;
+            document.body.appendChild(container);
+
+            // Create size label
+            const sizeLabel = document.createElement('div');
+            sizeLabel.className = 'sizeLabel';
+            sizeLabel.textContent = sizeLabels[index];
+            container.appendChild(sizeLabel);
+
+            // Initialize scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight - sizeLabel.offsetHeight);
+            renderer.setClearColor(0xd3d3d3, 1); // Set background color to light gray
+            renderer.shadowMap.enabled = false; // Disable shadows
+            container.insertBefore(renderer.domElement, sizeLabel);
+
+            // OrbitControls
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; // Enable smooth animation
+            controls.dampingFactor = 0.25; // Adjust the damping factor
+            controls.screenSpacePanning = false; // Disable screen space panning
+
+            // Add lights
+            const directionalLightFront = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLightFront.position.set(0, 1, 2).normalize();
+            directionalLightFront.castShadow = false; // Disable shadows for the light
+            scene.add(directionalLightFront);
+
+            const directionalLightBack = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLightBack.position.set(0, 1, -2).normalize();
+            directionalLightBack.castShadow = false; // Disable shadows for the light
+            scene.add(directionalLightBack);
+
+            const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+            ambientLight.castShadow = false; // Ensure ambient light doesn't cast shadows
+            scene.add(ambientLight);
+
+            // Load model
+            const loader = new THREE.GLTFLoader();
+            loader.load(modelPath, function (gltf) {
+                const model = gltf.scene;
+
+                // Set clothing material to black
+                model.traverse(function (node) {
+                    if (node.isMesh && node.name.includes("Cloth")) { // Check for "Cloth" in the node name
+                        node.material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Set new black material
+                        node.castShadow = false; // Disable shadows for the mesh
+                        node.receiveShadow = false; // Ensure mesh doesn't receive shadows
+                    }
+                });
+
+                model.position.set(0, -1, 0); // Adjust the position if necessary
+                model.scale.set(1, 1, 1); // Adjust scale if necessary
+                scene.add(model);
+                animate(); // Start the animation loop
+            }, undefined, function (error) {
+                console.error('An error occurred loading the model:', error);
+            });
+
+            camera.position.set(0, 0.5, 1.5); // Adjust camera position to be at the model's waist height and closer
+            controls.update();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / (container.clientHeight - sizeLabel.offsetHeight);
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight - sizeLabel.offsetHeight);
+            });
+        });
+    </script>
+</body>
+</html>
