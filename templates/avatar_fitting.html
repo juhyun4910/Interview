@@ -2,22 +2,68 @@
 <html>
 <head>
     <title>Fitting Room</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #333;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             flex-wrap: wrap;
             height: 100vh;
             overflow: hidden;
             position: relative;
+        }
+        .header-container {
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        h1 {
+            width: 90%;
+            text-align: center;
+            margin: 0 auto;
+            color: #fff;
+            z-index: 1;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 10px 0;
+            font-weight: 700;
+            font-size: 2em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .instructions {
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .instruction-item svg {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .instruction-item i {
+            font-size: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
         }
         .modelContainer {
             width: 18%;
@@ -32,12 +78,13 @@
             justify-content: flex-end;
             align-items: center;
             position: relative;
+            overflow: hidden;
         }
         .sizeLabel {
             width: 100%;
             text-align: center;
-            color: #000;
-            font-weight: bold;
+            color: #333;
+            font-weight: 600;
             font-size: 16px;
             background-color: #fff;
             border-bottom-left-radius: 10px;
@@ -46,20 +93,6 @@
             margin-top: 10px;
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            width: 100%;
-            text-align: center;
-            position: absolute;
-            top: 10px;
-            margin: 0;
-            padding: 0;
-            color: #000;
-            z-index: 1;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 10px 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
         #viewDetailsButton {
             position: absolute;
             bottom: 20px;
@@ -67,14 +100,40 @@
             font-size: 16px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff;
+            background-color: #0e0d0d;
             color: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #viewDetailsButton:hover {
+            background-color: #555;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <h1>Fitting Room</h1>
+    <div class="header-container">
+        <h1>Fitting Room</h1>
+        <div class="instructions">
+            <div class="instruction-item">
+                <svg viewBox="0 0 24 24">
+                    <path class="right-click" d="M12 2a5 5 0 015 5v5h-5V2z"/>
+                    <path d="M7 12v5a5 5 0 005 5 5 5 0 005-5v-5H7z"/>
+                </svg>
+                좌클릭 - 모델 회전
+            </div>
+            <div class="instruction-item">
+                <svg viewBox="0 0 24 24">
+                    <path class="left-click" d="M12 2a5 5 0 00-5 5v5h5V2z"/>
+                    <path d="M7 12v5a5 5 0 005 5 5 5 0 005-5v-5H7z"/>
+                </svg>
+                우클릭 - 모델 이동
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-search-plus"></i> 스크롤 - 확대
+            </div>
+        </div>
+    </div>
     <div id="container"></div>
     <button id="viewDetailsButton">핏 자세히 보기</button>
     <script>

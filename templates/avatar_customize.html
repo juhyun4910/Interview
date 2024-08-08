@@ -3,67 +3,135 @@
 <head>
     <title>Customize Your Avatar</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <!-- Font Awesome 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.121.1/examples/js/controls/OrbitControls.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #333;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Changed from center to flex-start */
+            align-items: center;
             height: 100vh;
-            overflow-y: auto; /* Allow vertical scrolling */
-            position: relative;
+            overflow: hidden; /* Disable scroll */
         }
         .container {
-            max-width: 900px;
-            margin: 20px auto; /* Added margin to create space around container */
-            padding: 20px;
-            background-color: #fff;
+            max-width: 800px; /* Increased the max-width */
+            width: 100%; 
+            height: 90vh; /* Slightly reduced height */
+            margin: 0 20px; /* Adjusted margin */
+            padding: 20px; /* Adjusted padding */
+            background-color: #ffffff;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        h1 {
+            margin-bottom: 10px; /* Reduced margin */
+            font-family: 'Montserrat', sans-serif;
+            color: #333;
+            font-weight: 700; /* Bold and heavy */
+            font-size: 2em; /* Increased font size */
+        }
+        .instructions {
+            font-size: 14px; /* Smaller font size for instructions */
+            color: #666;
+            margin-bottom: 20px; /* Margin for spacing below the instructions */
+        }
+        .instruction-item {
+            display: inline-block;
+            margin-right: 15px; /* Add space between instruction items */
+        }
+        .instruction-item svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px; /* Add space between icon and text */
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            background-color: #333;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #555;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         #modelContainer {
-            width: 800px;
-            height: 600px;
-            background-color: #d3d3d3;
+            width: 100%;
+            height: 70vh; /* Adjusted height to fit within the container */
+            background-color: #eaeaea;
             border: 2px solid #fff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
+            flex-grow: 1;
         }
         form {
             margin-top: 20px;
         }
-        input[type="submit"] {
-            padding: 10px 20px;
-            font-size: 16px;
+        .left-click {
+            fill: #007bff; /* Left click color */
         }
-        h1 {
-            width: 100%;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            color: #000;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 10px 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .right-click {
+            fill: #ccc; /* Right click color */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="my-4">Your Avatar</h1>
+        <div class="instructions">
+            <div class="instruction-item">
+                <svg viewBox="0 0 24 24">
+                    <path class="left-click" d="M12 2a5 5 0 00-5 5v5h5V2z"/>
+                    <path class="right-click" d="M12 2a5 5 0 015 5v5h-5V2z"/>
+                    <path d="M7 12v5a5 5 0 005 5 5 5 0 005-5v-5H7z"/>
+                </svg>
+                좌클릭 - 모델 회전
+            </div>
+            <div class="instruction-item">
+                <svg viewBox="0 0 24 24">
+                    <path class="right-click" d="M12 2a5 5 0 00-5 5v5h5V2z"/> <!-- Reverse paths for right-click -->
+                    <path class="left-click" d="M12 2a5 5 0 015 5v5h-5V2z"/> <!-- Reverse paths for right-click -->
+                    <path d="M7 12v5a5 5 0 005 5 5 5 0 005-5v-5H7z"/>
+                </svg>
+                우클릭 - 모델 이동
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-search-plus"></i> 스크롤 - 확대
+            </div>
+        </div>
         <div id="modelContainer"></div>
         <form action="{{ url_for('fitting_avatar') }}" method="post" class="mt-4">
             <input type="hidden" name="model_filename" value="{{ model_filename }}">
-            <input type="submit" value="Try Fitting" class="btn btn-primary">
+            <input type="submit" value="피팅해보기" class="btn btn-primary">
         </form>
     </div>
     <script>
@@ -71,12 +139,13 @@
 
         // Initialize scene
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, 800 / 600, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(800, 600);
-        renderer.setClearColor(0xd3d3d3, 1); // Set background color to light gray
+        const container = document.getElementById('modelContainer');
+        renderer.setSize(container.clientWidth, container.clientHeight); // Adjusted size
+        renderer.setClearColor(0xeaeaea, 1); // Set background color to light gray
         renderer.shadowMap.enabled = false; // Disable shadows
-        document.getElementById('modelContainer').appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
 
         // OrbitControls
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -122,7 +191,7 @@
             console.error('An error occurred loading the model:', error);
         });
 
-        camera.position.set(0, 0.8, 2.5); // Adjust camera position to be slightly lower and closer to the model
+        camera.position.set(0, 0.4, 1.8); // Adjust camera position to be slightly lower and closer to the model
         camera.lookAt(0, 0.7, 0); // Ensure the camera is looking at the model's center
         controls.update();
 
@@ -133,9 +202,9 @@
         }
 
         window.addEventListener('resize', () => {
-            camera.aspect = 800 / 600;
+            renderer.setSize(container.clientWidth, container.clientHeight); // Adjust size on window resize
+            camera.aspect = container.clientWidth / container.clientHeight; // Adjust aspect ratio
             camera.updateProjectionMatrix();
-            renderer.setSize(800, 600);
         });
     </script>
 </body>
