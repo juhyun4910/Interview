@@ -143,7 +143,8 @@
                 console.error('An error occurred loading the model:', error);
             });
 
-            camera.position.set(0, 0.5, 1.5); // Adjust camera position to be at the model's waist height and closer
+            camera.position.set(0, 0.1, 1.5); // Adjust camera position to be much lower and closer to the model
+            camera.lookAt(0, 0.3, 0); // Ensure the camera is looking at the model's center
             controls.update();
 
             function animate() {

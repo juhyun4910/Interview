@@ -91,6 +91,12 @@
         ambientLight.castShadow = false; // Ensure ambient light doesn't cast shadows
         scene.add(ambientLight);
 
+        // Add additional light for the back of the model
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        backLight.position.set(0, 1, -1).normalize();
+        backLight.castShadow = false; // Disable shadows for the light
+        scene.add(backLight);
+
         // Load model
         const loader = new THREE.GLTFLoader();
         loader.load(modelPath, function (gltf) {
@@ -116,8 +122,8 @@
             console.error('An error occurred loading the model:', error);
         });
 
-        camera.position.set(0, 1.5, 2.5); // Adjust camera position to be higher and closer to the model
-        camera.lookAt(0, 0, 0); // Ensure the camera is looking at the model's center
+        camera.position.set(0, 0.8, 2.5); // Adjust camera position to be slightly lower and closer to the model
+        camera.lookAt(0, 0.7, 0); // Ensure the camera is looking at the model's center
         controls.update();
 
         function animate() {
