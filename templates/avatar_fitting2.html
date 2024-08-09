@@ -112,6 +112,28 @@
         #endButton {
             bottom: 70px; /* Adjusted to place it above the '실착 모습 보기' button */
         }
+        .view-buttons {
+    position: absolute;
+    top: 120px; /* 아바타와 상단 제목 사이에 위치 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    margin-bottom: 20px;
+}
+.view-buttons button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.view-buttons button:hover {
+    background-color: #555;
+}
+
     </style>
 </head>
 <body>
@@ -137,6 +159,14 @@
             </div>
         </div>
     </div>
+
+    <div class="view-buttons">
+        <button onclick="setView('front')">정면</button>
+        <button onclick="setView('back')">후면</button>
+        <button onclick="setView('side')">옆면</button>
+        <button onclick="setView('diagonal')">대각선</button>
+    </div>
+    
     
     <div id="container"></div>
     <button id="backButton">실착 모습 보기</button>
@@ -152,38 +182,44 @@
 
         const sizeLabels = ["S_size", "M_size", "L_size", "XL_size", "XXL_size"];
 
+        const cameras = [];  // 카메라 배열 초기화
+        const controlsList = [];  // 컨트롤 배열 초기화
+
         modelFilenames.forEach((modelPath, index) => {
             const container = document.createElement('div');
             container.className = 'modelContainer';
             container.id = `modelContainer${index}`;
             document.body.appendChild(container);
 
-            // Create size label
-            const sizeLabel = document.createElement('div');
-            sizeLabel.className = 'sizeLabel';
-            sizeLabel.textContent = sizeLabels[index];
-            container.appendChild(sizeLabel);
+             // Create size label
+const sizeLabel = document.createElement('div');
+sizeLabel.className = 'sizeLabel';
+sizeLabel.textContent = sizeLabels[index];
+container.appendChild(sizeLabel);
 
-            // Initialize scene
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight - sizeLabel.offsetHeight);
-            renderer.setClearColor(0xd3d3d3, 1); // Set background color to light gray
-            renderer.shadowMap.enabled = false; // Disable shadows
-            container.insertBefore(renderer.domElement, sizeLabel);
+// Initialize scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+cameras.push(camera);  // 카메라 배열에 추가
 
-            // OrbitControls
-            const controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; // Enable smooth animation
-            controls.dampingFactor = 0.25; // Adjust the damping factor
-            controls.screenSpacePanning = false; // Disable screen space panning
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(container.clientWidth, container.clientHeight - sizeLabel.offsetHeight);
+renderer.setClearColor(0xd3d3d3, 1); // Set background color to light gray
+renderer.shadowMap.enabled = false; // Disable shadows
+container.insertBefore(renderer.domElement, sizeLabel);
 
-            // Add lights
-            const directionalLightFront = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLightFront.position.set(0, 1, 2).normalize();
-            directionalLightFront.castShadow = false; // Disable shadows for the light
-            scene.add(directionalLightFront);
+// OrbitControls
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Enable smooth animation
+controls.dampingFactor = 0.25; // Adjust the damping factor
+controls.screenSpacePanning = false; // Disable screen space panning
+controlsList.push(controls);  // 컨트롤 배열에 추가
+
+// Add lights
+const directionalLightFront = new THREE.DirectionalLight(0xffffff, 1);
+directionalLightFront.position.set(0, 1, 2).normalize();
+directionalLightFront.castShadow = false; // Disable shadows for the light
+scene.add(directionalLightFront);
 
             const directionalLightBack = new THREE.DirectionalLight(0xffffff, 0.5);
             directionalLightBack.position.set(0, 1, -2).normalize();
@@ -225,6 +261,29 @@
                 renderer.setSize(container.clientWidth, container.clientHeight - sizeLabel.offsetHeight);
             });
         });
+
+        function setView(view) {
+    cameras.forEach((camera, index) => {
+        switch(view) {
+            case 'front':
+                camera.position.set(0, 0.2, 1.5);
+                break;
+            case 'back':
+                camera.position.set(0, 0.2, -1.5);
+                break;
+            case 'side':
+                camera.position.set(1.5, 0.2, 0);
+                break;
+            case 'diagonal':
+                camera.position.set(1.5, 0.2, 1.5);
+                break;
+        }
+        camera.lookAt(0, 0.2, 0);
+        controlsList[index].update();  // 해당 카메라의 컨트롤 업데이트
+    });
+}
+
+
 
         // Add event listener to the "실착 모습 보기" button to navigate to avatar_fitting.html
         document.getElementById('backButton').addEventListener('click', () => {
