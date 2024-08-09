@@ -24,11 +24,29 @@ def avatar_fitting2():
     model_filename = request.args.get('model_filename')
     return render_template('avatar_fitting2.html', model_filename=model_filename)
 
+def get_height_category(height):
+    if 150 <= height < 160:
+        return '155'
+    elif 160 <= height < 170:
+        return '165'
+    else:
+        return '175'
+
+def get_weight_category(weight):
+    if 40 <= weight < 50:
+        return '45'
+    elif 50 <= weight < 60:
+        return '55'
+    elif 60 <= weight < 70:
+        return '65'
+    else:
+        return '75'
+    
 def get_model_filename(height, weight):
     # 키와 몸무게를 바탕으로 모델 파일 이름을 결정하는 로직
-    height_category = '155' if 150 <= height < 160 else '165' if 160 <= height < 170 else '175'
-    weight_category = '45' if 40 <= weight < 50 else '55' if 50 <= weight < 60 else '65'
-    return f"{height_category}_{weight_category}_S.glb"
+    height_category = get_height_category(height)
+    weight_category = get_weight_category(weight)
+    return f"{height_category}_{weight_category}_M.glb"
 
 if __name__ == '__main__':
     app.run(debug=True)
