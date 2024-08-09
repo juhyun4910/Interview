@@ -19,9 +19,9 @@ def fitting_avatar():
     model_filename = request.args.get('model_filename') if request.method == 'GET' else request.form['model_filename']
     return render_template('avatar_fitting.html', model_filename=model_filename)
 
-@app.route('/avatar_fitting2', methods=['GET'])
+@app.route('/avatar_fitting2', methods=['GET','POST'])
 def avatar_fitting2():
-    model_filename = request.args.get('model_filename')
+    model_filename = request.args.get('model_filename') if request.method == 'GET' else request.form['model_filename']
     return render_template('avatar_fitting2.html', model_filename=model_filename)
 
 def get_height_category(height):
@@ -46,7 +46,7 @@ def get_model_filename(height, weight):
     # 키와 몸무게를 바탕으로 모델 파일 이름을 결정하는 로직
     height_category = get_height_category(height)
     weight_category = get_weight_category(weight)
-    return f"{height_category}_{weight_category}_M.glb"
+    return f"{height_category}_{weight_category}_S.glb"
 
 if __name__ == '__main__':
     app.run(debug=True)
