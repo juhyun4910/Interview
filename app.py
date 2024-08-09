@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/',methods=['GET','POST'])
 def avatar_selection():
     return render_template('avatar_selection.html')
 
@@ -24,6 +24,10 @@ def avatar_fitting2():
     model_filename = request.args.get('model_filename') if request.method == 'GET' else request.form['model_filename']
     return render_template('avatar_fitting2.html', model_filename=model_filename)
 
+@app.route('/end_service' ,methods=['GET','POST'])
+def end_service():
+    return render_template('end_service.html')
+
 def get_height_category(height):
     if 150 <= height < 160:
         return '155'
@@ -41,7 +45,7 @@ def get_weight_category(weight):
         return '65'
     else:
         return '75'
-    
+
 def get_model_filename(height, weight):
     # 키와 몸무게를 바탕으로 모델 파일 이름을 결정하는 로직
     height_category = get_height_category(height)

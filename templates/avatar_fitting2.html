@@ -93,7 +93,7 @@
             margin-top: 10px;
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
         }
-        #backButton {
+        #backButton, #endButton {
             position: absolute;
             bottom: 20px;
             padding: 10px 20px;
@@ -105,9 +105,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        #backButton:hover {
+        #backButton:hover, #endButton:hover {
             background-color: #555;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #endButton {
+            bottom: 70px; /* Adjusted to place it above the '실착 모습 보기' button */
         }
     </style>
 </head>
@@ -137,6 +140,7 @@
     
     <div id="container"></div>
     <button id="backButton">실착 모습 보기</button>
+    <button id="endButton">종료하기</button>
     <script>
         const modelFilenames = [
             '/static/fitting_models/{{ model_filename.replace("_S", "_S") }}',
@@ -222,11 +226,16 @@
             });
         });
 
-        // Add event listener to the button to navigate to avatar_fitting.html
+        // Add event listener to the "실착 모습 보기" button to navigate to avatar_fitting.html
         document.getElementById('backButton').addEventListener('click', () => {
             const modelFilename = '{{ model_filename }}';
             window.location.href = `{{ url_for('fitting_avatar') }}?model_filename=${modelFilename}`;
         });
+
+        // Add event listener to the "종료하기" button to navigate to end_service.html
+        document.getElementById('endButton').addEventListener('click', () => {
+    window.location.href = "{{ url_for('end_service') }}";
+});
     </script>
 </body>
 </html>
